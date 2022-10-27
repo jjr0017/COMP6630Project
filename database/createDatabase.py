@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 import json
 import requests
 from freeMusicArchiveClass import FreeMusicArchive
@@ -24,7 +25,7 @@ genres = [  'INTERNATIONAL',
             'HIP-HOP'
             ]
 
-def storeDataTrackInfo(dataTrackJson):
+def storeDataTrackInfo(genre, dataTrackJson):
     j = json.loads(dataTrackJson)
     id = j["data-track-info"]["id"]
     handle = j["data-track-info"]["handle"]
@@ -38,14 +39,15 @@ def storeDataTrackInfo(dataTrackJson):
     fileName = j["data-track-info"]["fileName"]
     fileUrl = j["data-track-info"]["fileUrl"]
 
-    c = FreeMusicArchive(id, handle, url, title, artistName, artistUrl, albumTitle, playbackUrl, downloadUrl, fileName, fileUrl)
+    c = FreeMusicArchive(genre, id, handle, url, title, artistName, artistUrl, albumTitle, playbackUrl, downloadUrl, fileName, fileUrl)
 
-    print(json.dumps(c.__dict__))
+    return json.dumps(c.__dict__)
 
 
-def getDataTrackInfo(html):
+def getDataTrackInfo(genre, html):
     ret = False
     lines = html.splitlines()
+    j = ''
     for line in lines:
         if 'data-track-info' in line:
             ret = True
@@ -55,25 +57,33 @@ def getDataTrackInfo(html):
             endIdx = line.rfind("}") + 1
             info = line[startIdx:endIdx].replace('\\', '')
             dataTrackJson = '{"data-track-info": %s}' % info
-            storeDataTrackInfo(dataTrackJson)
+            j += '\t\t' + storeDataTrackInfo(genre, dataTrackJson) + ',\n'
 
-    return ret
+    return ret, j
 
-def getGenreHtmlPages(url):
+def genreHtmlPagesToJson(genre, url, f):
     pageCounter = 1
+    fullJson = ''
     while 1:
-        print(pageCounter)
+        print('page: %d' % pageCounter)
         response = requests.get(url+str(pageCounter))
         if response.ok:
             contents = response.text
-            if getDataTrackInfo(contents):
+            foundSongs, j = getDataTrackInfo(genre, contents)
+            if foundSongs:
                 pageCounter += 1
+                fullJson += j
             else:
                 break
         else:
             break
+    f.write(fullJson[:-2])
+    return
 
 def parseWebsiteToClasses(url):
+    metaDataJson = ''
+    f = open('mp3Metadata.json', 'w')
+    f.write('{ "songMetadata": \n\t[\n')
     for genre in genres:
         print(genre)
         genreUrl = url + 'genre/' + genre.title() + '?sort=date&d=0&pageSize=200&page='
@@ -85,8 +95,12 @@ def parseWebsiteToClasses(url):
             genreUrl = genreUrl.replace('Historic', 'Old-Time__Historic')
         if 'Soul-Rnb' in genreUrl:
             genreUrl = genreUrl.replace('Soul-Rnb', 'Soul-RB')
-        getGenreHtmlPages(genreUrl)
+        if not genre == genres[0]:
+            f.write(',\n')
+        genreHtmlPagesToJson(genre, genreUrl, f)
 
+    f.write('\n\t]\n}')
+    f.close()
 
 
 def main():

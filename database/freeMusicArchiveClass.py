@@ -1,5 +1,6 @@
 class FreeMusicArchive:
-    def __init__(self, id, handle, url, title, artistName, artistUrl, albumTitle, playbackUrl, downloadUrl, filename, fileUrl):
+    def __init__(self, genre, id, handle, url, title, artistName, artistUrl, albumTitle, playbackUrl, downloadUrl, filename, fileUrl):
+        self.genre = genre
         self.id = id
         self.handle = handle
         self.url = url
