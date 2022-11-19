@@ -18,7 +18,11 @@ def getArgParser():
         description = desc,
         epilog = "" # TODO
     )
-    parser.add_argument('data', type=str, help='folder containing database of json files')
+    parser.add_argument('--data', type=str, help='folder containing database of json files', required=True)
+    parser.add_argument('--lr', type=float, help='learning rate', required=False, default=0.1)
+    parser.add_argument('--epochs', type=int, help='maximum number of epochs', required=False, default=100)
+    parser.add_argument('--hiddenLayers', type=int, help='number of hidden layers', required=False, default=100)
+    parser.add_argument('--hiddenLayerNodes', type=int, help='number of nodes in each hidden layer', required=False, default=100)
 
     return parser
 
@@ -105,7 +109,11 @@ def main(args):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    model = MLP(len(X_train[0]), 1000, 1000, len(genreMap), 100, 100, 5)
+    # for train_index, val_index in kf.split(X, y):
+    #     X_train, X_val = X[train_index,:], X[val_index,:]
+    #     y_train, y_val = y[train_index], y[val_index]
+
+    model = MLP(len(X_train[0]), args.hiddenLayers, args.hiddenLayerNodes, len(genreMap), args.lr, args.epochs, 5)
     model.train(X_train, y_train)
 
 
