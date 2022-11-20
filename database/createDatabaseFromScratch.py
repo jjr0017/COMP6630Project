@@ -2,6 +2,7 @@ import sys
 import os
 import createMetadata
 import downloadMP3s
+import featureExtraction
 
 def main():
     folder = './'
@@ -14,6 +15,7 @@ def main():
     
     createMetadata.parseWebsiteForMetadata('https://freemusicarchive.org/', folder)
     downloadMP3s.downloadMP3s(folder)
+    featureExtraction.featureExtraction(folder)
 
 if __name__ == '__main__':
     main()

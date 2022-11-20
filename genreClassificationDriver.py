@@ -4,9 +4,10 @@ import argparse
 import json
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import normalize
 from MLPmodel.mlp import MLP
 
-NUMCHROMAGRAMSAMPLES = 1000
+BEATSAMPLES = 100
 
 def getArgParser():
     desc =  'This driver runs a genre classification Multi Level Perceptron neural netwrok\n\n'
@@ -42,56 +43,67 @@ def extractData(jsonFiles):
     X = []
     y = []
     genreMap = {}
-    xEntry = np.zeros(1 + 1 + NUMCHROMAGRAMSAMPLES*12 + NUMCHROMAGRAMSAMPLES + NUMCHROMAGRAMSAMPLES + NUMCHROMAGRAMSAMPLES*6 + NUMCHROMAGRAMSAMPLES + NUMCHROMAGRAMSAMPLES)
+    # xEntry = np.zeros(1 + 1 + BEATSAMPLES*12 + BEATSAMPLES + BEATSAMPLES*6 + BEATSAMPLES + BEATSAMPLES)
     for jsonFile in jsonFiles:
+        if jsonFile.endswith('mp3Metadata.json'):
+            continue
         print('Extracting data for %s' % jsonFile)
         f = open(jsonFile)
         jsonData = json.load(f)
+        f.close()
+        xEntry = np.zeros(1 + 1 + BEATSAMPLES*12 + BEATSAMPLES + BEATSAMPLES*6 + BEATSAMPLES + BEATSAMPLES)
+
+        beats = jsonData['beats']
+        samples = beats[:BEATSAMPLES] # TODO what if BEATSAMPLES > len(beats)
+        if len(samples) < BEATSAMPLES:
+            # song too short, throw out
+            continue
         idx = 0
         # tempo
-        xEntry[idx] = jsonData['tempo']/1000
+        xEntry[idx] = jsonData['tempo']
         idx += 1
         # tuning
-        xEntry[idx] = jsonData['tuning']/10000
+        xEntry[idx] = jsonData['tuning']
         idx += 1
-        # chromagram samples
-        numSamples = len(jsonData['chromagram'][0])
+        # chromagram samples 12 bands
+        # numSamples = len(jsonData['chromagram'][0])
         for i in range(12):
-            for counter in range(NUMCHROMAGRAMSAMPLES):
-                jsonIdx = int(np.floor((counter/(NUMCHROMAGRAMSAMPLES+1))*numSamples))
+            for counter in range(len(samples)):
+                jsonIdx = samples[counter]
                 xEntry[idx] = jsonData['chromagram'][i][jsonIdx]
                 idx += 1
 
         # spec_bw samples 
-        numSamples = len(jsonData['spec_bw'][0])
-        maxSample = np.max(jsonData['spec_bw'])
-        for counter in range(NUMCHROMAGRAMSAMPLES):
-            jsonIdx = int(np.floor((counter/(NUMCHROMAGRAMSAMPLES+1))*numSamples))
-            xEntry[idx] = jsonData['spec_bw'][0][jsonIdx]/maxSample
+        # numSamples = len(jsonData['spec_bw'][0])
+        # maxSample = np.max(jsonData['spec_bw'])
+        for counter in range(len(samples)):
+            jsonIdx = samples[counter]
+            xEntry[idx] = jsonData['spec_bw'][0][jsonIdx]
             idx += 1
         # constrast samples 6 bands
-        numSamples = len(jsonData['contrast'][0])
-        maxSample = np.max(jsonData['contrast'])
+        # numSamples = len(jsonData['contrast'][0])
+        # maxSample = np.max(jsonData['contrast'])
         for i in range(6):
-            for counter in range(NUMCHROMAGRAMSAMPLES):
-                jsonIdx = int(np.floor((counter/(NUMCHROMAGRAMSAMPLES+1))*numSamples))
-                xEntry[idx] = jsonData['contrast'][i][jsonIdx]/maxSample
+            for counter in range(len(samples)):
+                jsonIdx = samples[counter]
+                xEntry[idx] = jsonData['contrast'][i][jsonIdx]
                 idx += 1
 
         # maxRolloff samples
-        numSamples = len(jsonData['maxRolloff'][0])
-        maxSample = np.max(jsonData['maxRolloff'])
-        for counter in range(NUMCHROMAGRAMSAMPLES):
-            jsonIdx = int(np.floor((counter/(NUMCHROMAGRAMSAMPLES+1))*numSamples))
-            xEntry[idx] = jsonData['maxRolloff'][0][jsonIdx]/maxSample
+        # numSamples = len(jsonData['maxRolloff'][0])
+        # maxSample = np.max(jsonData['maxRolloff'])
+        for counter in range(len(samples)):
+            jsonIdx = samples[counter]
+            xEntry[idx] = jsonData['maxRolloff'][0][jsonIdx]
             idx += 1
         # minRolloff samples
-        numSamples = len(jsonData['minRolloff'][0])
-        maxSample = np.max(jsonData['minRolloff'])
-        for counter in range(NUMCHROMAGRAMSAMPLES):
-            jsonIdx = int(np.floor((counter/(NUMCHROMAGRAMSAMPLES+1))*numSamples))
-            xEntry[idx] = jsonData['minRolloff'][0][jsonIdx]/maxSample
+        # numSamples = len(jsonData['minRolloff'][0])
+        # maxSample = np.max(jsonData['minRolloff'])
+        for counter in range(len(samples)):
+            jsonIdx = samples[counter]
+            xEntry[idx] = jsonData['minRolloff'][0][jsonIdx]
             idx += 1
+        assert idx == len(xEntry)
         X.append(xEntry)
         if jsonData['genre'] not in genreMap:
             genreMap[jsonData['genre']] = len(genreMap)
@@ -104,8 +116,7 @@ def main(args):
     jsonFilenames = getJsonFiles(dataFolder)
     X, y, genreMap = extractData(jsonFilenames)
 
-    print(len(X))
-    print(len(y))
+    X = normalize(X, axis=0)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
@@ -113,7 +124,7 @@ def main(args):
     #     X_train, X_val = X[train_index,:], X[val_index,:]
     #     y_train, y_val = y[train_index], y[val_index]
 
-    model = MLP(len(X_train[0]), args.hiddenLayers, args.hiddenLayerNodes, len(genreMap), args.lr, args.epochs, 5)
+    model = MLP(len(X_train[0]), args.hiddenLayers, args.hiddenLayerNodes, len(genreMap), args.lr, args.epochs)
     model.train(X_train, y_train)
 
 

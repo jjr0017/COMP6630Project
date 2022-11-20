@@ -36,20 +36,24 @@ def getMp3Files(folder):
 
 def getJsonFeatures(mp3File, genre):
     # print(mp3File)
-    y, sr = librosa.load(mp3File)
+    try:
+        y, sr = librosa.load(mp3File)
 
-    tempo, beats = librosa.beat.beat_track(y=y, sr=sr)
-    tuning = librosa.estimate_tuning(y=y, sr=sr)
-    chromagram = librosa.feature.chroma_stft(y=y, sr=sr)
-    spec_bw = librosa.feature.spectral_bandwidth(y=y, sr=sr)
-    S = np.abs(librosa.stft(y))
-    contrast = librosa.feature.spectral_contrast(S=S, sr=sr)
-    maxRolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.99)
-    minRolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.01)
+        tempo, beats = librosa.beat.beat_track(y=y, sr=sr)
+        tuning = librosa.estimate_tuning(y=y, sr=sr)
+        chromagram = librosa.feature.chroma_stft(y=y, sr=sr)
+        spec_bw = librosa.feature.spectral_bandwidth(y=y, sr=sr)
+        S = np.abs(librosa.stft(y))
+        contrast = librosa.feature.spectral_contrast(S=S, sr=sr)
+        maxRolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.99)
+        minRolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.01)
 
-    featureData = mp3Features(genre, tempo, tuning, beats.tolist(), chromagram.tolist(), spec_bw.tolist(), contrast.tolist(), maxRolloff.tolist(), minRolloff.tolist())
+        featureData = mp3Features(genre, tempo, tuning, beats.tolist(), chromagram.tolist(), spec_bw.tolist(), contrast.tolist(), maxRolloff.tolist(), minRolloff.tolist())
+    
+        return json.dumps(featureData.__dict__)
+    except:
 
-    return json.dumps(featureData.__dict__)
+        return ''
 
 def createJsonFile(mp3File):
     jsonFilename = mp3File.replace('.mp3', '.json')
@@ -65,9 +69,10 @@ def createJsonFile(mp3File):
         exit(1)
     jsonData = getJsonFeatures(mp3File, genre)
 
-    f = open(jsonFilename, 'w')
-    f.write(jsonData)
-    f.close()
+    if jsonData != '':
+        f = open(jsonFilename, 'w')
+        f.write(jsonData)
+        f.close()
 
 def createPool(folder, threads):
     mp3Files = getMp3Files(folder)
@@ -75,6 +80,10 @@ def createPool(folder, threads):
     pool = Pool(threads)
     for _ in tqdm.tqdm(pool.imap_unordered(createJsonFile, mp3Files), total=len(mp3Files)):
         pass
+
+def featureExtraction(folder):
+    threads = 2
+    createPool(folder, threads)
 
 def main():
     folder = os.path.join(os.getcwd(), 'data')
@@ -84,8 +93,7 @@ def main():
         print('too many args. please provide just folder to look for mp3 files')
         exit(1)
 
-    threads = 2
-    createPool(folder, threads)
+    featureExtraction(folder)
 
     return
 

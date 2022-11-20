@@ -8,22 +8,22 @@ import os
 
 numSongsPerGenre = 1
 
-GENRES = [  'INTERNATIONAL',
-            'BLUES',
-            'JAZZ',
-            'NOVELTY',
-            'HISTORIC',
-            'COUNTRY',
+GENRES = [  # 'INTERNATIONAL',
+            # 'BLUES',
+            # 'JAZZ',
+            # 'NOVELTY',
+            # 'HISTORIC',
+            # 'COUNTRY',
             'POP',
-            'ROCK',
-            'SOUL-RNB',
-            'SPOKEN',
-            'EXPERIMENTAL',
-            'FOLK',
-            'INSTRUMENTAL',
+            # 'ROCK',
+            # 'SOUL-RNB',
+            # 'SPOKEN',
+            # 'EXPERIMENTAL',
+            # 'FOLK',
+            # 'INSTRUMENTAL',
             'CLASSICAL',
-            'ELECTRONIC',
-            'HIP-HOP'
+            # 'ELECTRONIC',
+            # 'HIP-HOP'
             ]
 
 def storeDataTrackInfo(genre, dataTrackJson):
