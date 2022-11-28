@@ -5,7 +5,7 @@ import json
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import normalize
-from sklearn.naive_bayes import CategoricalNB
+from sklearn.linear_model import Perceptron
 from MLPmodel.mlp import MLP
 
 BEATSAMPLES = 100
@@ -125,12 +125,13 @@ def main(args):
     #     X_train, X_val = X[train_index,:], X[val_index,:]
     #     y_train, y_val = y[train_index], y[val_index]
 
-    NBclf = CategoricalNB()
-    
-    NBclf.fit(X_train, y_train)
-    preds = NBclf.predict(X_test)
+    clf = Perceptron(max_iter=1000)
 
-    print(NBclf.score(X_train, y_train))
+    clf.fit(X_train, y_train)
+    
+    preds = clf.predict(X_test)
+
+    print(clf.score(X_test, y_test))
     correct = 0
     for (label, pred) in zip(y_test, preds):
         if pred == label:
