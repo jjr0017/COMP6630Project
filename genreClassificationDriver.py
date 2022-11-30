@@ -127,6 +127,15 @@ def main(args):
     model = MLP(len(X_train[0]), args.hiddenLayers, args.hiddenLayerNodes, len(genreMap), args.lr, args.epochs)
     model.train(X_train, y_train)
 
+    new_X = model.predict(X_test)
+
+    correct = 0
+    for i in range(len(y_test)):
+        if y_test[i] == new_X[i]:
+            correct += 1
+
+    print(correct/len(y_test))
+
 
 if __name__ == '__main__':
     parser = getArgParser()
