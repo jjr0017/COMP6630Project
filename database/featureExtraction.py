@@ -82,7 +82,7 @@ def createPool(folder, threads):
         pass
 
 def featureExtraction(folder):
-    threads = 2
+    threads = 4
     createPool(folder, threads)
 
 def main():

@@ -3,6 +3,7 @@ import sys
 import os
 import json
 import requests
+import random
 from createMetadata import GENRES
 
 def readMetadataJson(jsonFilename):
@@ -43,10 +44,14 @@ def makeGenreDirs(folder = './'):
             os.mkdir(folder+genre)
 
 
-def downloadMp3Files(metaJson, folder='./'):
+def downloadMp3Files(metaJson, maxFiles, folder='./'):
     # print(len(metaJson['songMetadata']))
-    for i, m in enumerate(metaJson['songMetadata']):
-        print("%d/%d" % (i+1,len(metaJson['songMetadata'])))
+    songMetadata = metaJson['songMetadata']
+    random.shuffle(songMetadata)
+    if maxFiles < len(songMetadata):
+        songMetadata = songMetadata[:maxFiles]
+    for i, m in enumerate(songMetadata):
+        print("%d/%d" % (i+1,len(songMetadata)))
         if m['fileName'] == '' or m['fileName'] == None or m['downloadUrl'] == None or m['downloadUrl'] == '':
             print('Insufficient data, did not download')
             continue
@@ -64,23 +69,25 @@ def downloadMp3Files(metaJson, folder='./'):
             print("Error in downloading")
         
 
-def downloadMP3s(folder, remove=False):
+def downloadMP3s(folder, maxFiles=10000, remove=False):
     metaJson = readMetadataJson(folder + '/data/mp3Metadata.json')
     metaJson = removeDuplicates(metaJson)
     if remove:
         removeGenreDirs(folder)
     makeGenreDirs(folder)
-    downloadMp3Files(metaJson, folder)
+    downloadMp3Files(metaJson, maxFiles, folder)
 
 def main():
     folder = './'
     if len(sys.argv) > 1:
         folder = sys.argv[1]
+    if len(sys.argv) > 2:
+        maxFiles = int(sys.argv[2])
     if not os.path.isdir(folder):
         print(folder + ' not a folder')
         exit(1)
 
-    downloadMP3s(folder, False)
+    downloadMP3s(folder, maxFiles, False)
 
 if __name__ == '__main__':
     main()

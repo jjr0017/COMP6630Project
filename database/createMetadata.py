@@ -10,20 +10,20 @@ numSongsPerGenre = 1
 
 GENRES = [  # 'INTERNATIONAL',
             # 'BLUES',
-            # 'JAZZ',
+            'JAZZ',
             # 'NOVELTY',
             # 'HISTORIC',
-            # 'COUNTRY',
+            'COUNTRY',
             'POP',
-            # 'ROCK',
-            # 'SOUL-RNB',
+            'ROCK',
+            'SOUL-RNB',
             # 'SPOKEN',
             # 'EXPERIMENTAL',
             # 'FOLK',
             # 'INSTRUMENTAL',
             'CLASSICAL',
             # 'ELECTRONIC',
-            # 'HIP-HOP'
+            'HIP-HOP'
             ]
 
 def storeDataTrackInfo(genre, dataTrackJson):

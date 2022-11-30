@@ -68,14 +68,13 @@ class MLP:
 
     def predict(self, X):
         logits = self.forward(X)[-1]
-        print(logits.argmax(axis=-1))
         return logits.argmax(axis=-1)
         
     def train(self, X, y):
         X = np.array(X)
         y = np.array(y)
-        for epoch in trange(0, self.epochs, 1):
-            for x_batch, y_batch in self.iterate_minibatches(X, y, 1):
+        for epoch in trange(0, self.epochs, 1, desc='Training'):
+            for x_batch, y_batch in self.iterate_minibatches(X, y, 25):
                 layer_activations = self.forward(x_batch)
 
                 layer_inputs = [x_batch]+layer_activations
@@ -86,7 +85,9 @@ class MLP:
                 self.backward(layer_inputs, loss_grad)          
             
             self.train_log.append(np.mean(self.predict(X)==y))
-            print(y)
 
             # print('epoch: %d/%d' % (epoch+1, self.epochs))
-            print('\ttrain accuracy =      %.02f%%' % (self.train_log[-1]*100))
+            # print('\ttrain accuracy =      %.02f%%' % (self.train_log[-1]*100))
+            if (self.train_log[-1] == 1):
+                print('100%% training accuracy reached')
+                return
