@@ -1,8 +1,8 @@
 import sys
 import os
-import createMetadata
-import downloadMP3s
-import featureExtraction
+import database.createMetadata
+import database.downloadMP3s
+import database.featureExtraction
 
 def main():
     folder = './'
@@ -15,9 +15,9 @@ def main():
         print(folder + ' not a folder')
         exit(1)
     
-    createMetadata.parseWebsiteForMetadata('https://freemusicarchive.org/', folder)
-    downloadMP3s.downloadMP3s(folder, maxFiles=maxFiles)
-    featureExtraction.featureExtraction(folder)
+    database.createMetadata.parseWebsiteForMetadata('https://freemusicarchive.org/', folder)
+    database.downloadMP3s.downloadMP3s(folder, maxFiles=maxFiles)
+    database.featureExtraction.featureExtraction(folder)
 
 if __name__ == '__main__':
     main()

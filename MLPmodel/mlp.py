@@ -6,19 +6,21 @@ from MLPmodel.layers import *
 np.random.seed(1)
 
 class MLP:
-    def __init__(self, inputNodes, hiddenLayers, hiddenLayerNodes, outputNodes, learningRate, epochs):
+    def __init__(self, inputNodes, hiddenLayers, hiddenLayerNodes, outputNodes, learningRate, epochs, genreMap, network=[]):
         self.inputNodes = inputNodes
         self.hiddenLayers = hiddenLayers
         self.hiddenLayerNodes = hiddenLayerNodes
         self.outputNodes = outputNodes
         self.learningRate = learningRate
         self.epochs = epochs
+        self.genreMap = genreMap
     
-        self.network = []
+        self.network = network
         self.train_log = []
         self.val_log = []
 
-        self.setUpNetwork()
+        if len(network) == 0:
+            self.setUpNetwork()
 
     def setUpNetwork(self):
         self.network.append(Dense(self.inputNodes, self.hiddenLayerNodes, self.learningRate))

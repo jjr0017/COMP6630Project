@@ -4,7 +4,7 @@ import librosa
 import numpy as np
 import json
 from multiprocessing import Pool
-from createMetadata import GENRES
+from database.createMetadata import GENRES
 import tqdm
 import warnings
 warnings.filterwarnings('ignore') # setting ignore as a parameter
@@ -66,7 +66,7 @@ def createJsonFile(mp3File):
             break
     if genre == '':
         print('could not find genre')
-        exit(1)
+        # exit(1)
     jsonData = getJsonFeatures(mp3File, genre)
 
     if jsonData != '':

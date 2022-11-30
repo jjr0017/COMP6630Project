@@ -1,8 +1,6 @@
-from genericpath import isdir
-from importlib.metadata import metadata
 import json
 import requests
-from freeMusicArchiveClass import FreeMusicArchive
+from database.freeMusicArchiveClass import FreeMusicArchive
 import sys
 import os
 
