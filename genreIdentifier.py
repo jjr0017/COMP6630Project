@@ -120,7 +120,9 @@ def main(args):
 
     # Need to add getting the genre map
 
-    # Need to add predicting and printing the predicted genre
+    prediction = model.predict(X)
+
+    print("The model predicts this song to be a " + genreMap[prediction] + " song")
 
 if __name__ == '__main__':
     parser = getArgParser()
