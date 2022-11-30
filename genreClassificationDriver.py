@@ -183,7 +183,7 @@ def main(args):
     done = False
     shouldSaveModel = False
     while not done:
-        saveModel = input("Do you want to save this model? ([y]/n)")
+        saveModel = input("Do you want to save this model? ([y]/n) ")
 
         if saveModel.lower() == 'y' or saveModel.lower() == 'yes' or saveModel == '':
             shouldSaveModel = True
