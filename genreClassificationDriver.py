@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import normalize
 from MLPmodel.mlp import MLP
+import pickle
 
 BEATSAMPLES = 100
 
@@ -136,6 +137,11 @@ def main(args):
 
     print(correct/len(y_test))
 
+    with open('data/learnedModel.mlp', 'wb') as modelFile:
+        pickle.dump(model, modelFile)
+
+    with open('data/genreMap.map', 'wb') as genreFile:
+        pickle.dump(genreMap, genreFile)
 
 if __name__ == '__main__':
     parser = getArgParser()

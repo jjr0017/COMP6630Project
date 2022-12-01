@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import normalize
 from MLPmodel.mlp import MLP
+import pickle
 
 BEATSAMPLES = 100
 
@@ -113,16 +114,16 @@ def main(args):
     jsonFilename = songPath.replace('.mp3', '.json')
     createJsonFile(songPath)
     X, y, genreMap = extractData(jsonFilename)
+    
+    with open('data/learnedModel.mlp', 'rb') as modelFile:
+        model = pickle.load(modelFile)
 
-    print(X)
+    with open('data/genreMap.map', 'rb') as genreFile:
+        genreMap = pickle.load(genreFile)
 
-    # Need to add getting the json of the model
+    prediction = model.predict(X)[0]
 
-    # Need to add getting the genre map
-
-    prediction = model.predict(X)
-
-    print("The model predicts this song to be a " + genreMap[prediction] + " song")
+    print("The model predicts this song to be a " + list(genreMap.keys())[list(genreMap.values()).index(prediction)] + " song")
 
 if __name__ == '__main__':
     parser = getArgParser()
