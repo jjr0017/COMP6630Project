@@ -50,7 +50,11 @@ def extractData(jsonFiles):
             continue
         print('Extracting data for %s' % jsonFile)
         f = open(jsonFile)
-        jsonData = json.load(f)
+        try:
+            jsonData = json.load(f)
+        except:
+            f.close()
+            continue
         f.close()
         xEntry = np.zeros(1 + 1 + BEATSAMPLES*12 + BEATSAMPLES + BEATSAMPLES*6 + BEATSAMPLES + BEATSAMPLES)
 

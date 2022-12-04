@@ -7,11 +7,11 @@ class BaseLayer:
     def forward(self, input):
         return input
     
-    def backward(self, input, grad_output):
+    def backPropagate(self, input, gradientOutput):
         num_units = input.shape[1]
         d_layer_d_input = np.eye(num_units)
 
-        return np.dot(grad_output, d_layer_d_input)
+        return np.dot(gradientOutput, d_layer_d_input)
 
 class ReLU(BaseLayer):
     def __init__(self):
@@ -21,9 +21,9 @@ class ReLU(BaseLayer):
         relu_forward = np.maximum(0, input)
         return relu_forward
     
-    def backward(self, input, grad_output):
+    def backPropagate(self, input, gradientOutput):
         relu_grad = input > 0
-        return grad_output*relu_grad
+        return gradientOutput*relu_grad
 
 class Dense(BaseLayer):
     def __init__(self, input_units, output_units, learning_rate=0.1):
@@ -34,14 +34,14 @@ class Dense(BaseLayer):
     def forward(self, input):
         return np.dot(input, self.weights) + self.biases
     
-    def backward(self, input, grad_output):
-        grad_input = np.dot(grad_output, self.weights.T)
-        grad_weights = np.dot(input.T, grad_output)
-        grad_biases = grad_output.mean(axis=0)*input.shape[0]
+    def backPropagate(self, input, gradientOutput):
+        gradientInput = np.dot(gradientOutput, self.weights.T)
+        gradientWeights = np.dot(input.T, gradientOutput)
+        gradientBiases = gradientOutput.mean(axis=0)*input.shape[0]
 
-        assert grad_weights.shape == self.weights.shape and grad_biases.shape == self.biases.shape
+        assert gradientWeights.shape == self.weights.shape and gradientBiases.shape == self.biases.shape
 
-        self.weights = self.weights - self.learning_rate*grad_weights
-        self.biases = self.biases - self.learning_rate*grad_biases
+        self.weights = self.weights - self.learning_rate*gradientWeights
+        self.biases = self.biases - self.learning_rate*gradientBiases
 
-        return grad_input
+        return gradientInput

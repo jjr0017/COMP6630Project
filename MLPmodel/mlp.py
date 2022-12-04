@@ -30,18 +30,12 @@ class MLP:
         self.network.append(ReLU())
         self.network.append(Dense(self.hiddenLayerNodes, self.outputNodes, self.learningRate))
 
-    def softmax_crossentropy_with_logits(self, logits, reference_answers):
-        logits_for_answers = logits[np.arange(len(logits)), reference_answers]
-
-        xentropy = - logits_for_answers + np.log(np.sum(np.exp(logits),axis=1))
-        return xentropy
-
-    def grad_softmax_crossentropy_with_logits(self, logits, reference_answers):
-        ones_for_answers = np.zeros_like(logits)
-        ones_for_answers[np.arange(len(logits)),reference_answers] = 1
+    def gradientSoftmaxWithCrossEntropy(self, logits, reference_answers):
+        oneHotEncodedAnswers = np.zeros_like(logits)
+        oneHotEncodedAnswers[np.arange(len(logits)),reference_answers] = 1
 
         softmax = np.exp(logits) / np.exp(logits).sum(axis=-1,keepdims=True)
-        return (- ones_for_answers+softmax) / logits.shape[0]
+        return (- oneHotEncodedAnswers+softmax) / logits.shape[0]
 
     def forward(self, X):
         activations = []
@@ -54,13 +48,13 @@ class MLP:
         assert len(activations) == len(self.network)
         return activations
 
-    def backward(self, layer_inputs, inital_loss_grad):
+    def backPropagate(self, layer_inputs, inital_loss_grad):
         loss_grad = inital_loss_grad
         for layer_index in range(len(self.network))[::-1]:
             layer = self.network[layer_index]
-            loss_grad = layer.backward(layer_inputs[layer_index], loss_grad)
+            loss_grad = layer.backPropagate(layer_inputs[layer_index], loss_grad)
 
-    def iterate_minibatches(self, inputs, targets, batchsize):
+    def createBatches(self, inputs, targets, batchsize):
         assert len(inputs) == len(targets)
         if len(inputs) < batchsize:
             batchsize = len(inputs)
@@ -76,15 +70,14 @@ class MLP:
         X = np.array(X)
         y = np.array(y)
         for epoch in trange(0, self.epochs, 1, desc='Training'):
-            for x_batch, y_batch in self.iterate_minibatches(X, y, 25):
+            for x_batch, y_batch in self.createBatches(X, y, 25):
                 layer_activations = self.forward(x_batch)
 
                 layer_inputs = [x_batch]+layer_activations
                 logits = layer_activations[-1]
 
-                # loss = self.softmax_crossentropy_with_logits(logits, y_batch)
-                loss_grad = self.grad_softmax_crossentropy_with_logits(logits, y_batch)
-                self.backward(layer_inputs, loss_grad)          
+                loss_grad = self.gradientSoftmaxWithCrossEntropy(logits, y_batch)
+                self.backPropagate(layer_inputs, loss_grad)          
             
             self.train_log.append(np.mean(self.predict(X)==y))
 
