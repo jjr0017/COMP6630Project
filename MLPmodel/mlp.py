@@ -6,14 +6,14 @@ from MLPmodel.layers import *
 np.random.seed(1)
 
 class MLP:
-    def __init__(self, inputNodes, hiddenLayers, hiddenLayerNodes, outputNodes, learningRate, epochs, genreMap, network=[]):
-        self.inputNodes = inputNodes
-        self.hiddenLayers = hiddenLayers
-        self.hiddenLayerNodes = hiddenLayerNodes
-        self.outputNodes = outputNodes
-        self.learningRate = learningRate
+    def __init__(self, input_nodes, hidden_layers, hidden_layer_nodes, output_node, learning_rate, epochs, genre_map, network: list= None):
+        self.inputNodes = input_nodes
+        self.hiddenLayers = hidden_layers
+        self.hiddenLayerNodes = hidden_layer_nodes
+        self.outputNodes = output_node
+        self.learningRate = learning_rate
         self.epochs = epochs
-        self.genreMap = genreMap
+        self.genreMap = genre_map
     
         self.network = network
         self.train_log = []

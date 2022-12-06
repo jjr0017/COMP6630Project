@@ -1,9 +1,6 @@
 import numpy as np
 
 class BaseLayer:
-    def __init__(self):
-        pass
-
     def forward(self, input):
         return input
     
@@ -14,9 +11,6 @@ class BaseLayer:
         return np.dot(gradientOutput, d_layer_d_input)
 
 class ReLU(BaseLayer):
-    def __init__(self):
-        pass
-
     def forward(self, input):
         relu_forward = np.maximum(0, input)
         return relu_forward
